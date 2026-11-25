@@ -20,16 +20,30 @@ LINE = (
     "than I have."
 )
 
+OUTPUT_PATH = os.path.join("/output", "entry.txt")
 
-def main() -> None:
-    out_dir = "/output"
-    os.makedirs(out_dir, exist_ok=True)
-    text = LINE
-    assert 1 <= len(text) <= 200, f"line is {len(text)} chars, gate is 1-200"
-    assert text.strip(), "line must not be only whitespace"
-    with open(os.path.join(out_dir, "entry.txt"), "w", encoding="utf-8") as f:
-        f.write(text)
+
+def _validate_entry(text):
+    """Gate from the bounty rules: UTF-8 text, 1-200 chars, not blank."""
+    if not isinstance(text, str):
+        raise ValueError("entry must be text")
+    if not 1 <= len(text) <= 200:
+        raise ValueError(f"entry is {len(text)} chars, gate is 1-200")
+    if not text.strip():
+        raise ValueError("entry must not be only whitespace")
+    if "\n" in text:
+        raise ValueError("entry must be a single line")
+    text.encode("utf-8")
+
+
+def write_entry():
+    """Validate the roast, then write it to /output/entry.txt."""
+    _validate_entry(LINE)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as handle:
+        handle.write(LINE)
+    return OUTPUT_PATH
 
 
 if __name__ == "__main__":
-    main()
+    write_entry()
